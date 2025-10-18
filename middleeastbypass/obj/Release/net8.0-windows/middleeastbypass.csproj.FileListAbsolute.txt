@@ -21,3 +21,4 @@ C:\Users\Defacube\source\repos\middleeastbypass\middleeastbypass\obj\Release\net
 C:\Users\Defacube\source\repos\middleeastbypass\middleeastbypass\obj\Release\net8.0-windows\middleeastbypass.pdb
 C:\Users\Defacube\source\repos\middleeastbypass\middleeastbypass\obj\Release\net8.0-windows\middleeastbypass.genruntimeconfig.cache
 C:\Users\Defacube\source\repos\middleeastbypass\middleeastbypass\obj\Release\net8.0-windows\ref\middleeastbypass.dll
+C:\Users\Defacube\source\repos\middleeastbypass\middleeastbypass\obj\Release\net8.0-windows\middleeastbypass.sourcelink.json

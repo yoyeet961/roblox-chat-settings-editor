@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("middleeastbypass")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ea9cc82df5388426167b3622dbe2129e6739ec2c")]
 [assembly: System.Reflection.AssemblyProductAttribute("middleeastbypass")]
 [assembly: System.Reflection.AssemblyTitleAttribute("middleeastbypass")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
