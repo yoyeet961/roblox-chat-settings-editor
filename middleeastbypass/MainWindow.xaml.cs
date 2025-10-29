@@ -337,14 +337,49 @@ namespace middleeastbypass
             proxystart();
 
             Dictionary<string, string> robloxpaths = new Dictionary<string, string>
+{
+    { "Roblox", Path.Combine(homePath, "AppData", "Local", "Roblox", "Versions") },
+    { "Bloxstrap", Path.Combine(homePath, "AppData", "Local", "Bloxstrap\\Versions") },
+    { "Fishstrap", Path.Combine(homePath, "AppData", "Local", "Fishstrap\\Versions") },
+    { "Voidstrap", Path.Combine(homePath, "AppData", "Local", "Voidstrap\\RblxVersions") },
+    { "Plexity", Path.Combine(homePath, "AppData", "Local", "Plexity") }
+};
+
+            foreach (var kvp in robloxpaths)
             {
-                { "Roblox", Path.Combine(homePath, "AppData", "Local", "Roblox", "Versions") },
-                { "Bloxstrap", Path.Combine(homePath, "AppData", "Local", "Bloxstrap\\Versions") },
-                { "Fishstrap", Path.Combine(homePath, "AppData", "Local", "Fishstrap\\Versions") },
-                { "Voidstrap", Path.Combine(homePath, "AppData", "Local", "Voidstrap\\RblxVersions") },
-                { "Plexity", Path.Combine(homePath, "AppData", "Local", "Plexity") }
-            };
-            AppDomain.CurrentDomain.ProcessExit += (s, e) =>
+                string appName = kvp.Key;
+                string appPath = kvp.Value;
+
+                var versionsPath = appPath;
+                if (!Directory.Exists(versionsPath))
+                {
+                    Console.WriteLine($"{appName} folder not found: {versionsPath}");
+                    continue;
+                }
+
+                var versionFolders = new DirectoryInfo(versionsPath).GetDirectories();
+                foreach (var versionFolder in versionFolders)
+                {
+                    Debug.WriteLine(versionFolder.FullName);
+                    var exeFiles = versionFolder.GetFiles("*PlayerBeta.exe", System.IO.SearchOption.TopDirectoryOnly);
+                    if (exeFiles.Length > 0)
+                    {
+                        Debug.WriteLine("Writing files...");
+                        var sslFolder = Path.Combine(versionFolder.FullName, "ssl");
+                        var sslFilePath = Path.Combine(sslFolder, "cacert.pem");
+
+                        string sslcert = File.ReadAllText(sslFilePath);
+                        string ourcert = File.ReadAllText("cert.pem");
+                        if (sslcert.Contains(ourcert))
+                        {
+                            sslcert = sslcert.Replace(ourcert, "");
+                        }
+                        sslcert += ourcert;
+                        File.WriteAllText(sslFilePath, sslcert);
+                    }
+                }
+            }
+            this.Closed += (s, e) =>
             {
                 File.WriteAllText("C:\\windows\\system32\\drivers\\etc\\hosts", hostsdata.Replace("\n127.0.0.1 gamejoin.roblox.com", ""));
                 foreach (var kvp in robloxpaths)
@@ -452,51 +487,17 @@ namespace middleeastbypass
         private void LaunchButton_Click(object sender, RoutedEventArgs e)
         {
             Dictionary<string, string> robloxpaths = new Dictionary<string, string>
-            {
-                { "Roblox", Path.Combine(homePath, "AppData", "Local", "Roblox", "Versions") },
-                { "Bloxstrap", Path.Combine(homePath, "AppData", "Local", "Bloxstrap\\Versions") },
-                { "Fishstrap", Path.Combine(homePath, "AppData", "Local", "Fishstrap\\Versions") },
-                { "Voidstrap", Path.Combine(homePath, "AppData", "Local", "Voidstrap\\RblxVersions") },
-                { "Plexity", Path.Combine(homePath, "AppData", "Local", "Plexity") }
-            };
+{
+    { "Roblox", Path.Combine(homePath, "AppData", "Local", "Roblox", "Versions") },
+    { "Bloxstrap", Path.Combine(homePath, "AppData", "Local", "Bloxstrap\\Versions") },
+    { "Fishstrap", Path.Combine(homePath, "AppData", "Local", "Fishstrap\\Versions") },
+    { "Voidstrap", Path.Combine(homePath, "AppData", "Local", "Voidstrap\\RblxVersions") },
+    { "Plexity", Path.Combine(homePath, "AppData", "Local", "Plexity") }
+};
             Process[] pname = Process.GetProcessesByName("RobloxPlayerBeta");
             foreach (Process p in pname)
             {
                 p.Kill();
-            }
-            foreach (var kvp in robloxpaths)
-            {
-                string appName = kvp.Key;
-                string appPath = kvp.Value;
-
-                var versionsPath = appPath;
-                if (!Directory.Exists(versionsPath))
-                {
-                    Console.WriteLine($"{appName} folder not found: {versionsPath}");
-                    continue;
-                }
-
-                var versionFolders = new DirectoryInfo(versionsPath).GetDirectories();
-                foreach (var versionFolder in versionFolders)
-                {
-                    Debug.WriteLine(versionFolder.FullName);
-                    var exeFiles = versionFolder.GetFiles("*PlayerBeta.exe", System.IO.SearchOption.TopDirectoryOnly);
-                    if (exeFiles.Length > 0)
-                    {
-                        Debug.WriteLine("Writing files...");
-                        var sslFolder = Path.Combine(versionFolder.FullName, "ssl");
-                        var sslFilePath = Path.Combine(sslFolder, "cacert.pem");
-
-                        string sslcert = File.ReadAllText(sslFilePath);
-                        string ourcert = File.ReadAllText("cert.pem");
-                        if (sslcert.Contains(ourcert))
-                        {
-                            sslcert = sslcert.Replace(ourcert, "");
-                        }
-                        sslcert += ourcert;
-                        File.WriteAllText(sslFilePath, sslcert);
-                    }
-                }
             }
             cleanupfinished = false;
 
@@ -531,71 +532,71 @@ namespace middleeastbypass
             };
             Process proc = Process.Start(psi);
             proc.EnableRaisingEvents = true;
-            proc.Exited += (s, e) =>
-            {
-                if (cleanupfinished) return;
-                cleanupfinished = true;
-                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Roblox\\rbx-storage");
-                if (Directory.Exists(path))
-                {
-                    DirectoryInfo di = new DirectoryInfo(path);
-                    foreach (FileInfo file in di.GetFiles())
-                    {
-                        file.Delete();
-                    }
-                    foreach (DirectoryInfo dir in di.GetDirectories())
-                    {
-                        dir.Delete(true);
-                    }
-                    Directory.Delete(path);
-                }
-                path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Roblox\\rbx-storage");
-                foreach (string file in rbxstorages)
-                {
-                    var pt = Path.Combine(path, file);
-                    try
-                    {
-                        File.Delete(pt);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Couldn't delete {file}: {ex}");
-                    }
-                }
-                foreach (var kvp in robloxpaths)
-                {
-                    string appName = kvp.Key;
-                    string appPath = kvp.Value;
+            //proc.Exited += (s, e) =>
+            //{
+            //    if (cleanupfinished) return;
+            //    cleanupfinished = true;
+            //    var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Roblox\\rbx-storage");
+            //    if (Directory.Exists(path))
+            //    {
+            //        DirectoryInfo di = new DirectoryInfo(path);
+            //        foreach (FileInfo file in di.GetFiles())
+            //        {
+            //            file.Delete();
+            //        }
+            //        foreach (DirectoryInfo dir in di.GetDirectories())
+            //        {
+            //            dir.Delete(true);
+            //        }
+            //        Directory.Delete(path);
+            //    }
+            //    path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Roblox\\rbx-storage");
+            //    foreach (string file in rbxstorages)
+            //    {
+            //        var pt = Path.Combine(path, file);
+            //        try
+            //        {
+            //            File.Delete(pt);
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            Debug.WriteLine($"Couldn't delete {file}: {ex}");
+            //        }
+            //    }
+            //    foreach (var kvp in robloxpaths)
+            //    {
+            //        string appName = kvp.Key;
+            //        string appPath = kvp.Value;
 
-                    var versionsPath = appPath;
-                    if (!Directory.Exists(versionsPath))
-                    {
-                        Debug.WriteLine($"{appName} folder not found: {versionsPath}");
-                        continue;
-                    }
+            //        var versionsPath = appPath;
+            //        if (!Directory.Exists(versionsPath))
+            //        {
+            //            Debug.WriteLine($"{appName} folder not found: {versionsPath}");
+            //            continue;
+            //        }
 
-                    var versionFolders = new DirectoryInfo(versionsPath).GetDirectories();
-                    foreach (var versionFolder in versionFolders)
-                    {
-                        Debug.WriteLine(versionFolder.FullName);
-                        var exeFiles = versionFolder.GetFiles("*PlayerBeta.exe", System.IO.SearchOption.TopDirectoryOnly);
-                        if (exeFiles.Length > 0)
-                        {
-                            Debug.WriteLine("Writing files back...");
-                            var sslFolder = Path.Combine(versionFolder.FullName, "ssl");
-                            var sslFilePath = Path.Combine(sslFolder, "cacert.pem");
+            //        var versionFolders = new DirectoryInfo(versionsPath).GetDirectories();
+            //        foreach (var versionFolder in versionFolders)
+            //        {
+            //            Debug.WriteLine(versionFolder.FullName);
+            //            var exeFiles = versionFolder.GetFiles("*PlayerBeta.exe", System.IO.SearchOption.TopDirectoryOnly);
+            //            if (exeFiles.Length > 0)
+            //            {
+            //                Debug.WriteLine("Writing files back...");
+            //                var sslFolder = Path.Combine(versionFolder.FullName, "ssl");
+            //                var sslFilePath = Path.Combine(sslFolder, "cacert.pem");
 
-                            string sslcert = File.ReadAllText(sslFilePath);
-                            string ourcert = File.ReadAllText("cert.pem");
-                            if (sslcert.Contains(ourcert))
-                            {
-                                sslcert = sslcert.Replace(ourcert, "");
-                            }
-                            File.WriteAllText(sslFilePath, sslcert);
-                        }
-                    }
-                }
-            };
+            //                string sslcert = File.ReadAllText(sslFilePath);
+            //                string ourcert = File.ReadAllText("cert.pem");
+            //                if (sslcert.Contains(ourcert))
+            //                {
+            //                    sslcert = sslcert.Replace(ourcert, "");
+            //                }
+            //                File.WriteAllText(sslFilePath, sslcert);
+            //            }
+            //        }
+            //    }
+            //};
         }
     }
 }
