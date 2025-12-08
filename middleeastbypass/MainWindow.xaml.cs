@@ -127,8 +127,9 @@ namespace middleeastbypass
                 {
                     obj.joinScript.WhoCanWhisperChatWithMeInExperiences = WhoCanWhisperChatWithMeInExperiences;
                     obj.joinScript.GameChatType = GameChatType;
-                    Debug.WriteLine(GameChatType);
-                    Debug.WriteLine(WhoCanWhisperChatWithMeInExperiences);
+                    obj.joinScript.DataCenterId = 506;
+                    //Debug.WriteLine(GameChatType);
+                    //Debug.WriteLine(WhoCanWhisperChatWithMeInExperiences);
                 }
                 return obj.ToString(Formatting.Indented);
             } catch (Exception e)
